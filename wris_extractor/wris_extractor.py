@@ -3,7 +3,6 @@ import urllib.parse
 from datetime import datetime
 import json
 
-# --- 1. CONFIGURATION ---
 session = requests.Session()
 
 # UPDATE YOUR JSESSIONID HERE
@@ -25,8 +24,6 @@ headers_common = {
 
 session.cookies.update(cookies)
 session.headers.update(headers_common)
-
-# --- 2. HELPER FUNCTIONS ---
 
 def get_selection(options, prompt_text):
     print(f"\n--- {prompt_text} ---")
@@ -50,8 +47,6 @@ def get_date_input(prompt_text):
             return date_str
         except ValueError:
             print("Invalid format. Please use YYYY-MM-DD (e.g., 2023-11-01)")
-
-# --- 3. MAIN LOGIC ---
 
 def main():
     print("Initializing India-WRIS Downloader...")
@@ -87,7 +82,6 @@ def main():
         print(f"Error fetching datasets: {e}")
         return
 
-    # --- STEP 2: Get States ---
     print("\nFetching States...")
     url_states = 'https://indiawris.gov.in/masterState/StateList'
     try:
@@ -118,7 +112,6 @@ def main():
         print(f"Error fetching states: {e}")
         return
 
-    # --- STEP 3: Get Districts ---
     print(f"\nFetching Districts for {selected_sname}...")
     url_districts = 'https://indiawris.gov.in/masterDistrict/getDistrictbyState'
     try:
@@ -130,7 +123,6 @@ def main():
         items = dist_data.get('data', []) if isinstance(dist_data, dict) else dist_data
 
         for item in items:
-            # FIXED: Added 'districtname' (lowercase) and 'district_id' (underscore)
             name = (item.get('districtName') or 
                     item.get('districtname') or 
                     item.get('district'))
@@ -138,8 +130,7 @@ def main():
             code = (item.get('districtCode') or 
                     item.get('districtcode') or 
                     item.get('districtId') or 
-                    item.get('district_id')) # <--- Fix for your error
-            
+                    item.get('district_id')) 
             if name and code:
                 dist_options.append((name, code))
         
@@ -156,12 +147,10 @@ def main():
         print(f"Error fetching districts: {e}")
         return
 
-    # --- STEP 4: Get Dates ---
     print("\n--- SELECT DATE RANGE ---")
     start_date = get_date_input("Enter Start Date")
     end_date = get_date_input("Enter End Date")
 
-    # --- STEP 5: Download ---
     print("\nDownloading Data...")
     
     encoded_dname = urllib.parse.quote(selected_dname)
